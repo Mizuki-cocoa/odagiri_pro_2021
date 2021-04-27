@@ -20,7 +20,6 @@ arrayframe=[0]
 cnt=0
 framecnt=0
 pygame.mixer.init()
-pygame.init()
 score=0
 score1=0
 vx=random.randint(5,20)
