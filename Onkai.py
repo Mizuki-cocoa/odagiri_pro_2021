@@ -1,11 +1,11 @@
 # coding: utf-8
 import random
-import cv2 
+import cv2
+import time
 #pygameは別途インストールしないといけないかも
 import pygame.mixer
-
 pygame.mixer.init()
-pygame.init()
+muon =pygame.mixer.Sound("/Users/cocoa/Desktop/oda_proj/music/muon.mp3")
 
 array=[]
 for i in range(9):
@@ -41,16 +41,14 @@ if __name__ == "__main__":
         if len(facerect) > 0:
             for rect in facerect:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), color, thickness=2)
-
+                # frame1=frame
                 yy=int((tuple(rect[0:2])[1]+tuple(rect[0:2]+rect[2:4])[1])/2)
-
-                for i in range(7):
+                for i in range(8):
                     if array[i]<=yy<=array[i+1]:
-                        pygame.mixer.music.load("/Users/cocoa/Desktop/proj/music/piano"+str(i)+".mp3")
-                
-                pygame.mixer.music.play(1)
-    
-        # 表示
+                        music =pygame.mixer.Sound("/Users/cocoa/Desktop/oda_proj/music/piano"+str(i)+".mp3")
+                        music.play()
+                        muon.play()
+        
         cv2.imshow("frame", frame)
 
         # qキーを押すとループ終了
