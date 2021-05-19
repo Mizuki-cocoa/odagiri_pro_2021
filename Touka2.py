@@ -1,0 +1,148 @@
+import numpy as np
+import cv2
+import math
+img = cv2.imread('/Users/kugou/Downloads/music_zentai.png',cv2.IMREAD_UNCHANGED)
+img1 = cv2.imread('/Users/kugou/Downloads/douga.png',cv2.IMREAD_UNCHANGED)
+img2 = cv2.imread('/Users/kugou/Downloads/disc.png',cv2.IMREAD_UNCHANGED)
+img3 = cv2.imread('/Users/kugou/Downloads/douga.png',cv2.IMREAD_UNCHANGED)
+img4 = cv2.imread('/Users/kugou/Downloads/stick.png',cv2.IMREAD_UNCHANGED)
+cnt=0
+gy=50.0
+
+
+def yza(xx,yy,cnt,gy):
+    stdval = math.sqrt((xx - 700) ** 2 + (yy - gy) ** 2)
+    if cnt==0:
+        return 50
+    else:
+        if stdval < 200:
+            return yy
+        else:
+            return gy
+
+        
+def gazou_syori_cnt(frame,img,img1,img3,cnt,xx,yy,gy):
+    bgb, bgg, bgr = cv2.split(frame)
+
+    fgb, fgg, fgr, fga = cv2.split(img)
+    fgb1, fgg1, fgr1, fga1 = cv2.split(img1)
+    fgb3, fgg3, fgr3, fga3 = cv2.split(img3)
+    rows, cols, ch = frame.shape
+
+    warpb = np.zeros((rows, cols), np.uint8)
+    warpg = np.zeros((rows, cols), np.uint8)
+    warpr = np.zeros((rows, cols), np.uint8)
+    warpa = np.zeros((rows, cols), np.uint8)
+
+    warpb1 = np.zeros((rows, cols), np.uint8)
+    warpg1 = np.zeros((rows, cols), np.uint8)
+    warpr1 = np.zeros((rows, cols), np.uint8)
+    warpa1 = np.zeros((rows, cols), np.uint8)
+
+    warpb3 = np.zeros((rows, cols), np.uint8)
+    warpg3 = np.zeros((rows, cols), np.uint8)
+    warpr3 = np.zeros((rows, cols), np.uint8)
+    warpa3 = np.zeros((rows, cols), np.uint8)
+
+    mat = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], dtype=np.float32)
+    mat1 = np.array([[0.3, 0.0, 2.0*cnt+60], [0.0, 0.3, 395.0]], dtype=np.float32)
+    a = yza(xx,yy,cnt,gy)
+    gy = a
+    mat3 = np.array([[0.3, 0.0, 730.0], [0.0, 0.3, a]], dtype=np.float32)
+
+    cv2.warpAffine(fgb, mat, (cols, rows), warpb, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fgg, mat, (cols, rows), warpg, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fgr, mat, (cols, rows), warpr, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fga, mat, (cols, rows), warpa, borderMode=cv2.BORDER_TRANSPARENT)
+
+    cv2.warpAffine(fgb1, mat1, (cols, rows), warpb1, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fgg1, mat1, (cols, rows), warpg1, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fgr1, mat1, (cols, rows), warpr1, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fga1, mat1, (cols, rows), warpa1, borderMode=cv2.BORDER_TRANSPARENT)
+
+    cv2.warpAffine(fgb3, mat3, (cols, rows), warpb3, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fgg3, mat3, (cols, rows), warpg3, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fgr3, mat3, (cols, rows), warpr3, borderMode=cv2.BORDER_TRANSPARENT)
+    cv2.warpAffine(fga3, mat3, (cols, rows), warpa3, borderMode=cv2.BORDER_TRANSPARENT)
+
+    bgb = bgb / 255.0
+    bgg = bgg / 255.0
+    bgr = bgr / 255.0
+
+    warpb = warpb / 255.0
+    warpg = warpg / 255.0
+    warpr = warpr / 255.0
+    warpa = warpa / 255.0
+
+    warpb1 = warpb1 / 255.0
+    warpg1 = warpg1 / 255.0
+    warpr1 = warpr1 / 255.0
+    warpa1 = warpa1 / 255.0
+
+    warpb3 = warpb3 / 255.0
+    warpg3 = warpg3 / 255.0
+    warpr3 = warpr3 / 255.0
+    warpa3 = warpa3 / 255.0
+
+    bgb = (1.0 - warpa) * bgb + warpa * warpb
+    bgg = (1.0 - warpa) * bgg + warpa * warpg
+    bgr = (1.0 - warpa) * bgr + warpa * warpr
+
+    bgb1 = (1.0 - warpa1) * bgb + warpa1 * warpb1
+    bgg1 = (1.0 - warpa1) * bgg + warpa1 * warpg1
+    bgr1 = (1.0 - warpa1) * bgr + warpa1 * warpr1
+
+    bgb3 = (1.0 - warpa3) * bgb + warpa3 * warpb3
+    bgg3 = (1.0 - warpa3) * bgg + warpa3 * warpg3
+    bgr3 = (1.0 - warpa3) * bgr + warpa3 * warpr3
+
+    result = cv2.merge((bgb, bgg, bgr))
+    result1 = cv2.merge((bgb1, bgg1, bgr1))
+    result2 = cv2.merge((bgb3, bgg3, bgr3))
+    return result,result1,result2,gy
+
+if __name__ == "__main__":
+    
+    # 内蔵カメラを起動
+    cap = cv2.VideoCapture(0)
+
+    # OpenCVに用意されている顔認識するためのxmlファイルのパス
+    cascade_path = "/Users/kugou/Desktop/python/haarcascade_eye.xml"
+    # カスケード分類器の特徴量を取得する
+    cascade = cv2.CascadeClassifier(cascade_path)
+    
+    # 顔に表示される枠の色を指定（白色）
+    color = (255,255,255)
+    while True:
+        ret, frame = cap.read()
+        
+        # モノクロで表示する
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray=cv2.equalizeHist(gray)
+        xx =0
+        yy =0
+        # 顔認識の実行
+        facerect = cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=2, minSize=(10,10))
+        # 顔が見つかったらcv2.rectangleで顔に白枠を表示する
+        if len(facerect) > 0:
+            for rect in facerect:
+                cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), color, thickness=2)
+                xx=int((tuple(rect[0:2])[0]+tuple(rect[0:2]+rect[2:4])[0])/2)
+                yy=int((tuple(rect[0:2])[1]+tuple(rect[0:2]+rect[2:4])[1])/2)
+        
+        result,result1,result2,gy=gazou_syori_cnt(frame,img,img1,img3,cnt,xx,yy,gy)
+        # result3 = onryo(frame,img3)
+
+        cnt+=1
+        # 表示
+        cv2.imshow("frame", result)
+        cv2.imshow("frame", result1)
+        cv2.imshow("frame", result2)
+
+        # qキーを押すとループ終了
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # 内蔵カメラを終了
+    cap.release()
+    cv2.destroyAllWindows()
