@@ -131,7 +131,6 @@ if __name__ == "__main__":
                 yy=int((tuple(rect[0:2])[1]+tuple(rect[0:2]+rect[2:4])[1])/2)
         
         result,result1,result2,gy=gazou_syori_cnt(frame,img,img1,img3,cnt,xx,yy,gy)
-        # result3 = onryo(frame,img3)
 
         cnt+=1
         # 表示
